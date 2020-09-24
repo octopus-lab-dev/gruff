@@ -420,6 +420,19 @@ module Gruff
 
   protected
 
+    # Had to redifine this method since the implementation seems buggy
+    def data_given?
+      @data_given ||= begin
+        if store.empty?
+          false
+        else
+          minimum_value <= store.min || maximum_value >= store.max
+        end
+      end
+    rescue StandardError => _e
+      @data_given = false
+    end
+
     # Overridden by subclasses to do the actual plotting of the graph.
     #
     # Subclasses should start by calling super() for this method.
@@ -464,15 +477,15 @@ module Gruff
 
     attr_reader :store
 
-    def data_given?
-      @data_given ||= begin
-        if store.empty?
-          false
-        else
-          minimum_value <= store.min || maximum_value >= store.max
-        end
-      end
-    end
+    # def data_given?
+    #   @data_given ||= begin
+    #     if store.empty?
+    #       false
+    #     else
+    #       minimum_value <= store.min || maximum_value >= store.max
+    #     end
+    #   end
+    # end
 
     def column_count
       store.columns

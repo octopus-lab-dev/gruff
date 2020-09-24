@@ -145,13 +145,13 @@ class Gruff::Line < Gruff::Base
     store.add(name, y_data_points, color, x_data_points)
   end
 
-  def draw_reference_line(reference_line, left, right, top, bottom)
-    config = {
-      color: reference_line[:color] || @reference_line_default_color,
-      width: reference_line[:width] || @reference_line_default_width
-    }
-    Gruff::Renderer::DashLine.new(config).render(left, top, right, bottom)
-  end
+  # def draw_reference_line(reference_line, left, right, top, bottom)
+  #   config = {
+  #     color: reference_line[:color] || @reference_line_default_color,
+  #     width: reference_line[:width] || @reference_line_default_width
+  #   }
+  #   Gruff::Renderer::DashLine.new(config).render(left, top, right, bottom)
+  # end
 
   def draw_horizontal_reference_line(reference_line)
     level = @graph_top + (@graph_height - reference_line[:norm_value] * @graph_height)
@@ -163,74 +163,74 @@ class Gruff::Line < Gruff::Base
     draw_reference_line(reference_line, index, index, @graph_top, @graph_top + @graph_height)
   end
 
-  def draw
-    super
+  # def draw
+  #   super
 
-    return unless data_given?
+  #   return unless data_given?
 
-    # Check to see if more than one datapoint was given. NaN can result otherwise.
-    @x_increment = (column_count > 1) ? (@graph_width / (column_count - 1).to_f) : @graph_width
+  #   # Check to see if more than one datapoint was given. NaN can result otherwise.
+  #   @x_increment = (column_count > 1) ? (@graph_width / (column_count - 1).to_f) : @graph_width
 
-    @reference_lines.each_value do |curr_reference_line|
-      draw_horizontal_reference_line(curr_reference_line) if curr_reference_line.key?(:norm_value)
-      draw_vertical_reference_line(curr_reference_line) if curr_reference_line.key?(:index)
-    end
+  #   @reference_lines.each_value do |curr_reference_line|
+  #     draw_horizontal_reference_line(curr_reference_line) if curr_reference_line.key?(:norm_value)
+  #     draw_vertical_reference_line(curr_reference_line) if curr_reference_line.key?(:index)
+  #   end
 
-    if @show_vertical_markers
-      (0..column_count).each do |column|
-        x = @graph_left + @graph_width - column.to_f * @x_increment
+  #   if @show_vertical_markers
+  #     (0..column_count).each do |column|
+  #       x = @graph_left + @graph_width - column.to_f * @x_increment
 
-        Gruff::Renderer::Line.new(color: @marker_color).render(x, @graph_bottom, x, @graph_top)
-        #If the user specified a marker shadow color, draw a shadow just below it
-        if @marker_shadow_color
-          Gruff::Renderer::Line.new(color: @marker_shadow_color).render(x + 1, @graph_bottom, x + 1, @graph_top)
-        end
-      end
-    end
+  #       Gruff::Renderer::Line.new(color: @marker_color).render(x, @graph_bottom, x, @graph_top)
+  #       #If the user specified a marker shadow color, draw a shadow just below it
+  #       if @marker_shadow_color
+  #         Gruff::Renderer::Line.new(color: @marker_shadow_color).render(x + 1, @graph_bottom, x + 1, @graph_top)
+  #       end
+  #     end
+  #   end
 
-    store.norm_data.each do |data_row|
-      prev_x = prev_y = nil
+  #   store.norm_data.each do |data_row|
+  #     prev_x = prev_y = nil
 
-      one_point = contains_one_point_only?(data_row)
+  #     one_point = contains_one_point_only?(data_row)
 
-      data_row.coordinates.each_with_index do |(x_data, y_data), index|
-        if x_data.nil?
-          #use the old method: equally spaced points along the x-axis
-          new_x = @graph_left + (@x_increment * index)
-          draw_label(new_x, index)
-        else
-          new_x = get_x_coord(x_data, @graph_width, @graph_left)
-          @labels.each do |label_pos, _|
-            draw_label(@graph_left + ((label_pos - @minimum_x_value) * @graph_width) / (@maximum_x_value - @minimum_x_value), label_pos)
-          end
-        end
-        unless y_data # we can't draw a line for a null data point, we can still label the axis though
-          prev_x = prev_y = nil
-          next
-        end
+  #     data_row.coordinates.each_with_index do |(x_data, y_data), index|
+  #       if x_data.nil?
+  #         #use the old method: equally spaced points along the x-axis
+  #         new_x = @graph_left + (@x_increment * index)
+  #         draw_label(new_x, index)
+  #       else
+  #         new_x = get_x_coord(x_data, @graph_width, @graph_left)
+  #         @labels.each do |label_pos, _|
+  #           draw_label(@graph_left + ((label_pos - @minimum_x_value) * @graph_width) / (@maximum_x_value - @minimum_x_value), label_pos)
+  #         end
+  #       end
+  #       unless y_data # we can't draw a line for a null data point, we can still label the axis though
+  #         prev_x = prev_y = nil
+  #         next
+  #       end
 
-        new_y = @graph_top + (@graph_height - y_data * @graph_height)
+  #       new_y = @graph_top + (@graph_height - y_data * @graph_height)
 
-        # Reset each time to avoid thin-line errors
-        stroke_width  = line_width || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 4), 5.0)
-        circle_radius = dot_radius || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 2.5), 5.0)
+  #       # Reset each time to avoid thin-line errors
+  #       stroke_width  = line_width || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 4), 5.0)
+  #       circle_radius = dot_radius || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 2.5), 5.0)
 
-        if !@hide_lines && prev_x && prev_y
-          Gruff::Renderer::Line.new(color: data_row.color, width: stroke_width)
-                               .render(prev_x, prev_y, new_x, new_y)
-        end
+  #       if !@hide_lines && prev_x && prev_y
+  #         Gruff::Renderer::Line.new(color: data_row.color, width: stroke_width)
+  #                              .render(prev_x, prev_y, new_x, new_y)
+  #       end
 
-        if one_point || !@hide_dots
-          Gruff::Renderer::Dot.new(@dot_style, color: data_row.color, width: stroke_width).render(new_x, new_y, circle_radius)
-        end
+  #       if one_point || !@hide_dots
+  #         Gruff::Renderer::Dot.new(@dot_style, color: data_row.color, width: stroke_width).render(new_x, new_y, circle_radius)
+  #       end
 
-        prev_x = new_x
-        prev_y = new_y
-      end
-    end
+  #       prev_x = new_x
+  #       prev_y = new_y
+  #     end
+  #   end
 
-    Gruff::Renderer.finish
-  end
+  #   Gruff::Renderer.finish
+  # end
 
 private
 
@@ -280,5 +280,138 @@ private
 
   def contains_one_point_only?(data_row)
     data_row.y_points.compact.count == 1
+  end
+
+protected
+
+  # Monkey patched to draw continuous lines instead of DashLines
+  def draw_reference_line(reference_line, left, right, top, bottom)
+    config = {
+      color: reference_line[:color] || @reference_line_default_color,
+      width: reference_line[:width] || @reference_line_default_width
+    }
+    Gruff::Renderer::Line.new(config).render(left, top, right, bottom)
+  end
+
+  # Monkey patch draw, so the vertical lines are drawn first, and can act as a background color
+  def draw
+    # Maybe should be done in one of the following functions for more granularity.
+    unless data_given?
+      draw_no_data
+      return
+    end
+
+    setup_data
+    setup_drawing
+
+    @x_increment = column_count > 1 ? (@graph_width / (column_count - 1).to_f) : @graph_width
+    @reference_lines.each_value do |curr_reference_line|
+      draw_horizontal_reference_line(curr_reference_line) if curr_reference_line.key?(:norm_value)
+      draw_vertical_reference_line(curr_reference_line) if curr_reference_line.key?(:index)
+    end
+
+    draw_legend
+    draw_line_markers
+    draw_axis_labels
+    draw_title
+
+    # return unless data_given?
+
+    # Check to see if more than one datapoint was given. NaN can result otherwise.
+    # @x_increment = (column_count > 1) ? (@graph_width / (column_count - 1).to_f) : @graph_width
+
+    # @reference_lines.each_value do |curr_reference_line|
+    #   draw_horizontal_reference_line(curr_reference_line) if curr_reference_line.key?(:norm_value)
+    #   draw_vertical_reference_line(curr_reference_line) if curr_reference_line.key?(:index)
+    # end
+
+    # We draw vertical markers in a row to act as a background color
+    if @show_vertical_markers
+      (0..column_count).each do |column|
+        x = @graph_left + @graph_width - column.to_f * @x_increment
+
+        Gruff::Renderer::Line.new(color: @marker_color).render(x, @graph_bottom, x, @graph_top)
+      end
+    end
+
+    store.norm_data.each do |data_row|
+      prev_x = prev_y = nil
+
+      one_point = contains_one_point_only?(data_row)
+
+      data_row.coordinates.each_with_index do |(x_data, y_data), index|
+        if x_data.nil?
+          # use the old method: equally spaced points along the x-axis
+          new_x = @graph_left + (@x_increment * index)
+          draw_label(new_x, index)
+        else
+          new_x = get_x_coord(x_data, @graph_width, @graph_left)
+          @labels.each do |label_pos, _|
+            draw_label(@graph_left + ((label_pos - @minimum_x_value) * @graph_width) / (@maximum_x_value - @minimum_x_value), label_pos)
+          end
+        end
+        unless y_data # we can't draw a line for a null data point, we can still label the axis though
+          prev_x = prev_y = nil
+          next
+        end
+
+        new_y = @graph_top + (@graph_height - y_data * @graph_height)
+
+        # Reset each time to avoid thin-line errors
+        stroke_width  = line_width || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 4), 5.0)
+        circle_radius = dot_radius || clip_value_if_greater_than(@columns / (store.norm_data.first.y_points.size * 2.5), 5.0)
+
+        if !@hide_lines && prev_x && prev_y
+          Gruff::Renderer::Line.new(color: data_row.color, width: stroke_width)
+                               .render(prev_x, prev_y, new_x, new_y)
+        end
+
+        if one_point || !@hide_dots
+          Gruff::Renderer::Dot.new(@dot_style, color: data_row.color, width: stroke_width).render(new_x, new_y, circle_radius)
+        end
+
+        prev_x = new_x
+        prev_y = new_y
+      end
+    end
+
+    Gruff::Renderer.finish
+  end
+
+  # Monkey patched to allow to set the lines manually
+  # https://github.com/topfunky/gruff/blob/v0.10.0/lib/gruff/base.rb#L574
+  def draw_line_markers
+    return super unless @custom_markers
+
+    # increment_scaled = @graph_height.to_f / (@spread / @increment)
+
+    # Add a top line if necessary
+    if maximum_value > @custom_markers.keys.max
+      max_marker = GruffHelper.round_up(maximum_value)
+      dup_markers = @custom_markers.dup
+      dup_markers[max_marker] = '#D3D3D3'
+      @custom_markers = dup_markers
+    end
+
+    @custom_markers.each do |value, marker_color|
+      y = @graph_top + @graph_height - (@graph_height * value / @spread)
+
+      # hide this to display top bar
+      next unless (@graph_top..@graph_bottom).include? y
+
+      Gruff::Renderer::Line.new(color: marker_color, width: 5).render(@graph_left, y, @graph_right, y)
+      # If the user specified a marker shadow color, draw a shadow just below it
+      # Disable shadow with this option
+      # if @marker_shadow_color
+      #   Gruff::Renderer::Line.new(color: @marker_shadow_color).render(@graph_left, y + 1, @graph_right, y + 1)
+      # end
+
+      next if @hide_line_numbers
+
+      marker_label = BigDecimal(value.to_s)
+      label = label(marker_label, @increment)
+      text_renderer = Gruff::Renderer::Text.new(label, font: @font, size: @marker_font_size, color: @font_color)
+      text_renderer.render(@graph_left - LABEL_MARGIN, 1.0, 0.0, y, Magick::EastGravity)
+    end
   end
 end

@@ -67,6 +67,11 @@ class Gruff::Bar < Gruff::Base
 
 protected
 
+  def label(value, _increment)
+    # From OutdoorAirQualityIndex levels %w[good fair moderate poor very-poor extremely-poor]
+    I18n.t("eaq.#{OutdoorAirQualityIndex::EAQ_ADJECTIVES[value.to_i]}")
+  end
+
   def draw_bars
     # Setup spacing.
     #
