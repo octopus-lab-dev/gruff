@@ -39,6 +39,9 @@ class Gruff::Line < Gruff::Base
   # accessors for support of xy data.
   attr_accessor :maximum_x_value
 
+  # accessors for support of custom markers.
+  attr_accessor :custom_markers
+
   # Get the value if somebody has defined it.
   def baseline_value
     if @reference_lines.key?(:baseline)
