@@ -397,7 +397,7 @@ protected
     end
 
     @custom_markers.each do |value, marker_color|
-      y = @graph_top + @graph_height - (@graph_height * (value - @minimum_value) / @spread)
+      y = @graph_top + @graph_height - (@graph_height * (value - minimum_x_value) / @spread)
 
       # hide this to display top bar
       next unless (@graph_top..@graph_bottom).include? y
