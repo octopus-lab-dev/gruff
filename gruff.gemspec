@@ -4,7 +4,7 @@
 lib = File.expand_path('lib')
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'date'
-require 'gruff/version'
+require_relative 'lib/gruff/version'
 
 Gem::Specification.new do |s|
   s.name = 'gruff'
