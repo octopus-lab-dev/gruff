@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rmagick'
-require 'gruff/version'
+require_relative 'gruff/version'
 
 # Extra full path added to fix loading errors on some installations.
 
