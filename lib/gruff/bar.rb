@@ -33,6 +33,8 @@ class Gruff::Bar < Gruff::Base
   # Default is +false+.
   attr_accessor :show_labels_for_bar_values
 
+  attr_accessor :custom_labels
+
   def initialize_ivars
     super
     @spacing_factor = 0.9
@@ -68,8 +70,7 @@ class Gruff::Bar < Gruff::Base
 protected
 
   def label(value, _increment)
-    # From OutdoorAirQualityIndex levels %w[good fair moderate poor very-poor extremely-poor]
-    I18n.t("eaq.#{OutdoorAirQualityIndex::EAQ_ADJECTIVES[value.to_i]}")
+    custom_labels[value.to_i]
   end
 
   def draw_bars
