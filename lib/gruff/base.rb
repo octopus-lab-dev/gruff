@@ -539,7 +539,7 @@ module Gruff
         end
         # Add space on the right side of the chart if we write labels there
         if @custom_markers
-          @extra_room_for_long_label += calculate_width(@marker_font_size, @custom_markers.select { |_m, v| v == '#D3D3D3' }.keys.max)
+          @extra_room_for_long_label += calculate_width(@marker_font_size, @custom_markers.select { |m, v| v == '#D3D3D3' && m <= maximum_value }.keys.max)
         end
         @graph_right_margin = @right_margin + @extra_room_for_long_label
 
