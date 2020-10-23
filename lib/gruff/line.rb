@@ -402,7 +402,7 @@ protected
       # hide this to display top bar
       next unless (@graph_top..@graph_bottom).include? y
 
-      Gruff::Renderer::Line.new(color: marker_color, width: 5).render(@graph_left, y, @graph_right, y)
+      Gruff::Renderer::Line.new(color: marker_color, width: 2).render(@graph_left, y, @graph_right, y)
       # If the user specified a marker shadow color, draw a shadow just below it
       # Disable shadow with this option
       # if @marker_shadow_color
@@ -414,7 +414,13 @@ protected
       marker_label = BigDecimal(value.to_s)
       label = label(marker_label, @increment)
       text_renderer = Gruff::Renderer::Text.new(label, font: @font, size: @marker_font_size, color: @font_color)
-      text_renderer.render(@graph_left - LABEL_MARGIN, 1.0, 0.0, y, Magick::EastGravity)
+      # Write the label on the right if the color is grey
+      if marker_color == '#D3D3D3'
+        text_renderer.render(@graph_right + @extra_room_for_long_label, 1.0, 0.0, y, Magick::EastGravity)
+        # text_renderer.render(@graph_right + LABEL_MARGIN + @extra_room_for_long_label, 1.0, 0.0, y, Magick::EastGravity)
+      else
+        text_renderer.render(@graph_left - LABEL_MARGIN, 1.0, 0.0, y, Magick::EastGravity)
+      end
     end
   end
 end

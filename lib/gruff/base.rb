@@ -534,10 +534,14 @@ module Gruff
         # Make space for half the width of the rightmost column label.
         # Might be greater than the number of columns if between-style bar markers are used.
         last_label = @labels.keys.max.to_i
-        extra_room_for_long_label = begin
+        @extra_room_for_long_label = begin
           (last_label >= (column_count - 1) && @center_labels_over_point) ? calculate_width(@marker_font_size, @labels[last_label]) / 2.0 : 0
         end
-        @graph_right_margin = @right_margin + extra_room_for_long_label
+        # Add space on the right side of the chart if we write labels there
+        if @custom_markers
+          @extra_room_for_long_label += calculate_width(@marker_font_size, @custom_markers.select { |_m, v| v == '#D3D3D3' }.keys.max)
+        end
+        @graph_right_margin = @right_margin + @extra_room_for_long_label
 
         @graph_bottom_margin = @bottom_margin + @marker_caps_height + LABEL_MARGIN
       end
