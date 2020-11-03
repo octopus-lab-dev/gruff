@@ -398,6 +398,7 @@ protected
 
     @custom_markers.each do |value, marker_color|
       y = @graph_top + @graph_height - (@graph_height * (value - minimum_x_value) / @spread)
+      y = y.to_i
 
       # hide this to display top bar
       next unless (@graph_top..@graph_bottom).include? y
@@ -411,13 +412,15 @@ protected
 
       next if @hide_line_numbers
 
-      marker_label = BigDecimal(value.to_s)
-      label = label(marker_label, @increment)
+      # We use only Integer for the axes, if we want to use Floats again, the label width needs to be used
+      # for the @extra_room_for_long_label calculation
+      # marker_label = BigDecimal(value.to_s)
+      # label = label(marker_label, @increment)
+      label = value.to_i.to_s
       text_renderer = Gruff::Renderer::Text.new(label, font: @font, size: @marker_font_size, color: @font_color)
       # Write the label on the right if the color is grey
       if marker_color == '#D3D3D3'
         text_renderer.render(@graph_right + @extra_room_for_long_label, 1.0, 0.0, y, Magick::EastGravity)
-        # text_renderer.render(@graph_right + LABEL_MARGIN + @extra_room_for_long_label, 1.0, 0.0, y, Magick::EastGravity)
       else
         text_renderer.render(@graph_left - LABEL_MARGIN, 1.0, 0.0, y, Magick::EastGravity)
       end
